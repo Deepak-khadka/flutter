@@ -1,10 +1,10 @@
-import 'package:expense_planner/widgets/transaction_list.dart';
-
+import './widgets/chart.dart';
+import './widgets/transaction_list.dart';
 import './models/transaction.dart';
 import './widgets/new_transaction.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyHomePage());
+void main() => runApp(const MyHomePage());
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -14,20 +14,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _userTransactions = [
-    Transaction(
-      id: 't1',
-      title: 'New Shoes',
-      amount: 69.26,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      id: 't2',
-      title: 'Jordan Shoes',
-      amount: 159.26,
-      date: DateTime.now(),
-    )
-  ];
+  final List<Transaction> _userTransactions = [];
+
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((tx) {
+      return tx.date.isAfter(
+        DateTime.now().subtract(
+          const Duration(
+            days: 7,
+          ),
+        ),
+      );
+    }).toList();
+  }
 
   void _addNewTransaction(String title, double amount) {
     final newTx = Transaction(
@@ -45,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _startAddNewTransaction(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
-      builder: (_) {
+      builder: (context) {
         return NewTransaction(_addNewTransaction);
       },
     );
@@ -56,39 +55,35 @@ class _MyHomePageState extends State<MyHomePage> {
     return MediaQuery(
       data: const MediaQueryData(),
       child: MaterialApp(
+        theme: ThemeData(
+          primarySwatch: Colors.purple,
+          accentColor: Colors.amber,
+          fontFamily: 'Quicksand',
+        ),
+        debugShowCheckedModeBanner: true,
         home: Scaffold(
           appBar: AppBar(
             title: const Text("Expenditure Management"),
-            actions: [
-              IconButton(
-                  onPressed: () => _startAddNewTransaction(context),
-                  icon: const Icon(
-                    Icons.add,
-                  ))
-            ],
           ),
           body: SingleChildScrollView(
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  child: const Card(
-                    color: Colors.blue,
-                    elevation: 5,
-                    child: Text('Chart !!'),
-                  ),
-                ),
+                Chart(_recentTransactions),
                 TransactionList(_userTransactions),
               ],
             ),
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => _startAddNewTransaction(context),
-            child: const Icon(Icons.add),
+          floatingActionButton: Builder(
+            builder: (context) => FloatingActionButton(
+              onPressed: () => _startAddNewTransaction(context),
+              child: const Icon(
+                Icons.add,
+              ),
+            ),
           ),
         ),
       ),
