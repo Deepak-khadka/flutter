@@ -5,7 +5,9 @@ import 'package:intl/intl.dart';
 class TransactionList extends StatefulWidget {
   final List<Transaction> transactions;
 
-  const TransactionList(this.transactions);
+  final Function deleteTx;
+
+  const TransactionList(this.transactions, this.deleteTx);
 
   @override
   State<TransactionList> createState() => _TransactionListState();
@@ -42,48 +44,37 @@ class _TransactionListState extends State<TransactionList> {
           : ListView.builder(
               itemBuilder: (context, index) {
                 return Card(
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 15,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(5),
-                        child: Text(
-                          " \$${widget.transactions[index].amount.toStringAsFixed(2)}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: Colors.purple),
+                  elevation: 5,
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      radius: 30,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: FittedBox(
+                          child: Text(
+                              '\$${widget.transactions[index].amount.toStringAsFixed(2)}'),
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.transactions[index].title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            DateFormat.yMMMd()
-                                .format(widget.transactions[index].date),
-                            style: const TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
+                    ),
+                    title: Text(
+                      widget.transactions[index].title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+                    subtitle: Text(
+                      DateFormat.yMMMd()
+                          .format(widget.transactions[index].date),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      color: Colors.red,
+                      onPressed: () =>
+                          widget.deleteTx(widget.transactions[index].id),
+                    ),
                   ),
                 );
               },
